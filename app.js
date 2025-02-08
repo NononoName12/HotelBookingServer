@@ -23,29 +23,37 @@ app.use(cookieParser());
 
 // Middleware xử lý dữ liệu gửi qua form (kiểu application/x-www-form-urlencoded).
 app.use(bodyParser.urlencoded({ extended: true }));
-const allowedOrigins = [
-  "https://hotel-booking-client-ashen.vercel.app", // URL frontend React
-  "https://hotel-booking-admin-rho.vercel.app", // Thêm URL khác nếu cần
-];
-
-// Cấu hình CORS cho phép hoặc từ chối các yêu cầu từ những miền khác (origins) dựa trên danh sách allowedOrigins
 app.use(
   cors({
-    //Hàm tùy chỉnh xác định logic để chấp nhận hoặc từ chối các yêu cầu từ các nguồn khác nhau (origins).
-    origin: (origin, callback) => {
-      // origin: Là miền (domain) của yêu cầu
-      if (!origin || allowedOrigins.includes(origin)) {
-        // Nếu không có origin (khi request từ server-side) hoặc origin hợp lệ
-        // Callback: Là hàm callback dùng để báo cáo kết quả (chấp nhận hoặc từ chối yêu cầu).
-        callback(null, true);
-      } else {
-        // Nếu origin không hợp lệ
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // Cho phép gửi cookie và header auth
+    origin: [
+      "https://hotel-booking-client-ashen.vercel.app",
+      "https://hotel-booking-admin-rho.vercel.app",
+    ],
+    credentials: true, // Cho phép cookie & header auth
   })
 );
+
+// Xử lý preflight request (OPTIONS)
+app.options("*", cors());
+
+// Cấu hình CORS cho phép hoặc từ chối các yêu cầu từ những miền khác (origins) dựa trên danh sách allowedOrigins
+// app.use(
+//   cors({
+//     //Hàm tùy chỉnh xác định logic để chấp nhận hoặc từ chối các yêu cầu từ các nguồn khác nhau (origins).
+//     origin: (origin, callback) => {
+//       // origin: Là miền (domain) của yêu cầu
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         // Nếu không có origin (khi request từ server-side) hoặc origin hợp lệ
+//         // Callback: Là hàm callback dùng để báo cáo kết quả (chấp nhận hoặc từ chối yêu cầu).
+//         callback(null, true);
+//       } else {
+//         // Nếu origin không hợp lệ
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true, // Cho phép gửi cookie và header auth
+//   })
+// );
 
 app.use(async (req, res, next) => {
   const token = req.cookies.token; // Lấy token từ cookie
